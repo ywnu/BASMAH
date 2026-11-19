@@ -26,3 +26,6 @@ Seed-data SQL, operations/queries SQL, results and screenshots.
 - [ ] Pull request opened for integration review
 
 **Important:** Do not edit `main` directly. Coordinate shared table definitions with Jumanah and Diyam.
+
+
+> **Temporary schema warning:** `sql/schema/00_ASEEL_LOCAL_STANDIN_schema.sql` is an archived local-test schema, not Jumanah's approved `BASMAH` schema. Do not use it for integration or merge it as the final schema. The seed and query scripts still require adaptation to the official schema.
