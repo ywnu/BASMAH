@@ -10,7 +10,7 @@ Branch: `feature/sql-operations` | Role: SQL Operations & Evidence | Project: BA
 | `docs/ASEEL_operations_docs.md` | Seed-data matrix, query checklist, demo script | Yes |
 | `docs/ADAPTATION_CHECKLIST.md` | How to adapt my files to Jumanah's official schema | Yes |
 | `evidence/` | Screenshots: `00_show_tables.png`, `01_row_counts.png`, `queries/` (Q1-Q19), `data_quality/` (DQ1-DQ5) | Yes |
-| `local_only/00_ASEEL_LOCAL_STANDIN_schema.sql` | **My own temporary schema** (assumed from the plan's entity list) used only for local testing | **NO – never commit** |
+| `sql/schema/00_ASEEL_LOCAL_STANDIN_schema.sql` | **Archived temporary test schema**, not compatible with Jumanah's official BASMAH schema; do not execute for integration or merge as production DDL | **Reference only; exclude from final integration** |
 
 ## What I did (in the exact order I ran it, MySQL Workbench, local)
 1. Ran `00_ASEEL_LOCAL_STANDIN_schema.sql` (my temporary schema) -> database `basmah_db` created. (First line gives warning 1008 "database doesn't exist" - expected on first run because of `DROP DATABASE IF EXISTS`.)
@@ -27,7 +27,7 @@ Note: the recommended run order for the team is schema -> seed -> 02b -> 03 (see
 **Still to do:**
 - Send the shared IDs to Hanan and Bayader (see below).
 - Re-run everything on Jumanah's official schema and fix any name/type differences.
-- Create branch `feature/sql-operations`, push, open the pull request (do not commit `local_only/`).
+- Continue work on branch `feature/sql-operations`, adapt to Jumanah's schema, then open a pull request. Exclude the temporary stand-in schema from final integration.
 - Week 14: final verification on the integrated database, slides.
 
 ## Dependencies on others
@@ -41,7 +41,7 @@ Reserved for disposable test rows: **9000+** (Aseel 9001, Hanan from 9100, Bayad
 
 ## How to run (MySQL Workbench)
 Run in this order (File → Open SQL Script → Execute):
-1. Schema (temporary: `local_only/00_...`; later Jumanah's official file)
+1. Schema (Jumanah's official schema for integration; the stand-in schema is retained for historical local-test reference only)
 2. `sql/operations/02_seed_data.sql`
 3. `sql/operations/02b_data_quality_checks.sql` (all results empty)
 4. `sql/operations/03_queries.sql`
