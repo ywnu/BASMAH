@@ -2,11 +2,11 @@
 
 **Project:** Evidence & Source Tracking System  
 **Owner:** Diyam — Database Design  
-**Status:** Proposed normalization analysis based on the current data dictionary; final schema and functional dependencies require team approval.
+**Status:** Logical normalization analysis based on the initial MySQL schema. Formal functional-dependency review and final business rules remain pending.
 
 ## Scope and assumptions
 
-The proposed relational schema contains eight tables: Users, Projects, Sources, Claims, Evidence, Reviews, Versions, and ActivityLogs. Each table has a single-column surrogate primary key (e.g., UserID, ClaimID, EvidenceID). The analysis assumes each primary key uniquely determines all non-key attributes of its row, and that no additional business-rule functional dependencies exist among the non-key columns. This assumption must be checked before claiming formal 3NF compliance.
+The initial relational schema contains eight tables: Users, Projects, Sources, Claims, Evidence, Reviews, Versions, and ActivityLogs. Each table has a single-column surrogate primary key (e.g., UserID, ClaimID, EvidenceID). The analysis assumes each primary key uniquely determines all non-key attributes of its row, and that no additional business-rule functional dependencies exist among the non-key columns. This assumption must be checked before claiming formal 3NF compliance.
 
 ## First Normal Form (1NF)
 
@@ -57,5 +57,5 @@ Examples in BASMAH:
 1. `Claims` and `Sources` form a conceptual M:N relationship represented by `Evidence`, which has its own descriptive attributes and primary key.
 2. Surrogate primary keys alone do **not** prove 3NF. The team must verify domain-specific dependencies and uniqueness rules.
 3. `Versions.PreviousText` is intentional historical snapshot data, not necessarily a normalization defect; audit/history tables may store prior values for traceability.
-4. Do not assume 3NF has been tested in MySQL: normalization is a logical design analysis, and no executable schema has yet been validated.
-5. Align this document with the final ER Diagram, Data Dictionary, and MySQL CREATE TABLE scripts before submission.
+4. Do not describe 3NF as tested in MySQL: normalization is a logical design analysis. Jumanah reports executing the initial schema and constraint tests, which do not establish formal 3NF compliance.
+5. The current ER Diagram, Data Dictionary, and initial MySQL CREATE TABLE scripts have been compared. Recheck this analysis if the approved schema or business rules change.
