@@ -2,9 +2,9 @@
 
 **Project:** Evidence & Source Tracking System  
 **Owner:** Diyam — Database Design  
-**Status:** Proposed design, pending team approval and ERD alignment. Not implemented or tested in MySQL.
+**Status:** Matched to Jumanah's initial MySQL schema. Jumanah reports successful MySQL creation and PK/FK/UNIQUE/NOT NULL tests; final deletion/update policies and trigger behavior remain under review.
 
-This dictionary is the working specification for Jumanah's MySQL `CREATE TABLE` scripts. It documents 8 tables, 36 columns, 8 primary keys, and 10 foreign-key columns.
+This dictionary describes the column definitions in Jumanah's initial MySQL `CREATE TABLE` scripts. It documents 8 tables, 36 columns, 8 primary keys, and 10 foreign-key columns.
 
 ## Users
 
@@ -100,12 +100,12 @@ User action audit trail.
 
 ## Design decisions to confirm
 
-- Confirm all table/column names and nullability with Jumanah before implementation.
+- Initial table/column names, types, and nullability have been compared with Jumanah's Week 12 schema. Recheck after any final SQL revisions.
 - Define allowed values and defaults for `Claims.Status`, `Reviews.Decision`, `Evidence.EvidenceType`, `Sources.SourceType`, and `Users.Role`.
 - Confirm delete/update rules with Hanan. Do **not** cascade-delete evidence, reviews, or versions by default; protect audit history.
 - Review whether `ActivityLogs.UserID` should be nullable for system-generated actions and how user deletion affects audit logs.
 - Confirm that a `Source` can support many `Claims` via `Evidence`, and that duplicate evidence links are handled appropriately.
 - Agree on timestamp defaults, character set/collation, and optional URL validation.
-- Align final ERD cardinalities and participation with the approved schema before calling this final.
+- Current ERD and relational schema reflect the initial SQL structure; confirm participation and any changes after final team approval.
 
-**Scope:** Documentation only. No SQL execution or database testing has been performed.
+**Scope:** Design documentation. MySQL execution and constraint testing were reported by Jumanah; this document does not independently reproduce those tests.
