@@ -2,11 +2,11 @@
 
 **Project:** BASMAH – Evidence & Source Tracking System  
 **Owner:** Diyam — Database Design  
-**Status:** Database design documentation. Actual runtime environment must be confirmed with the MySQL implementation team.
+**Status:** Centralized MySQL architecture documented. Jumanah reports initial schema execution and constraint testing; the exact test host/network environment remains to be confirmed.
 
 ## 1. Database architecture
 
-BASMAH is designed around a **centralized relational database** managed by **MySQL**. The proposed schema stores users, projects, claims, sources, evidence, reviews, version history, and activity logs in one database.
+BASMAH is designed around a **centralized relational database** managed by **MySQL**. The initial schema stores users, projects, claims, sources, evidence, reviews, version history, and activity logs in one database.
 
 The current course deliverable focuses on the database schema and required SQL features: cascade behavior, triggers, transactions, indexing, and views. **A user interface or a database-to-interface connection is not required** under the instructor's updated instructions.
 
@@ -51,17 +51,17 @@ The Evidence table resolves the conceptual many-to-many association between Clai
 
 - Primary keys uniquely identify records.
 - Foreign keys link related tables.
-- The proposed `Users.Email` field is unique.
+- The initial schema defines `Users.Email` as UNIQUE.
 - Cascade and restriction policies must be reviewed to avoid unintended loss of evidence or history.
 - Transactions, triggers, views, and indexes will be implemented and tested in MySQL by the assigned teammates.
 - Final column names and foreign-key directions must match the approved EER diagram and the actual MySQL schema.
 
 ## 5. Scope and validation
 
-**Designed/documented:** Centralized MySQL database structure, eight proposed tables, relationships, and an access/network explanation.
+**Designed/documented:** Centralized MySQL database structure, eight tables, relationships, and an access/network explanation. Jumanah reports executing the initial schema and constraint tests.
 
 **Not required:** Custom frontend, API, or interface-to-database integration.
 
-**Pending confirmation:** Final EER-to-relational mapping, executed MySQL scripts, actual test environment, and integration results.
+**Pending confirmation:** Final ON DELETE / ON UPDATE rules, ActivityLogs trigger contract, actual test environment, and integrated SQL feature results.
 
 **Related documents:** `DATA_DICTIONARY.md`, `RELATIONSHIPS.md`, `NORMALIZATION.md`.
