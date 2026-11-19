@@ -6,7 +6,7 @@
 
 ## 1. Introduction and Database Design Overview
 
-BASMAH is a proposed relational database system for organizing projects, claims, supporting sources, evidence, review decisions, and change history. The database design aims to make each claim traceable to its project, author, evidence, source, and reviewer while reducing unnecessary duplication of data. MySQL is the planned database management system.
+BASMAH is a proposed relational database system for organizing projects, claims, supporting sources, evidence, review decisions, and change history. The database design aims to make each claim traceable to its project, author, evidence, source, and reviewer while reducing unnecessary duplication of data. MySQL is the database management system used for the team's initial schema implementation.
 
 ## Problem Statement
 
@@ -35,7 +35,7 @@ The proposed schema consists of eight entities:
 | Versions | VersionID | ClaimID (FK), ChangedBy (FK), PreviousText, ChangedAt | Record previous claim text and editor |
 | ActivityLogs | LogID | UserID (FK), Action, ActionDate | Record user activity |
 
-The full proposed types, nullability, keys, and constraints are documented in `DATA_DICTIONARY.md`.
+The initial schema's types, nullability, keys, and constraints are documented in `DATA_DICTIONARY.md`.
 
 ## 3. Relationships and Cardinalities
 
@@ -84,8 +84,8 @@ MySQL uses a **client–server access model**. If the client and server run on t
 
 - Every proposed table has a primary key.
 - Ten foreign-key columns represent the documented relationships.
-- Users.Email is proposed as unique.
-- Foreign keys are proposed as NOT NULL; exact deletion and update actions need team agreement.
+- Users.Email is UNIQUE in the initial MySQL schema.
+- Foreign keys are NOT NULL in the initial MySQL schema; exact deletion and update actions need team agreement.
 - Deletion policies should protect review, evidence, and change history.
 - Allowed status/decision/type values, timestamp defaults, and additional business constraints remain to be finalized.
 
@@ -105,11 +105,11 @@ Editable source: [BASMAH-ER-Diagram.erdplus](BASMAH-ER-Diagram.erdplus)
 
 Editable source: [BASMAH-Relational Schema.erdplus](BASMAH-Relational%20Schema.erdplus)
 
-**Note:** PNG assets must be uploaded at these relative paths for the previews above to render. Final business rules and trigger integration are pending team review.
+**Note:** Both PNG diagram assets have been uploaded to this directory. Final business rules and trigger integration are pending team review.
 
 ## 8. Conclusion
 
-The current BASMAH design documents a proposed eight-entity relational model with explicit keys and relationships. Its separation of users, projects, claims, evidence, sources, reviews, and history provides a foundation for implementing a traceable evidence-management database. The ER diagram and relational schema are prepared and have been checked against the team's initial MySQL DDL. Final approval depends on agreeing on business rules and verifying the team's final MySQL scripts.
+The current BASMAH design documents an eight-entity relational model with explicit keys and relationships. Its separation of users, projects, claims, evidence, sources, reviews, and history provides a foundation for implementing a traceable evidence-management database. The ER diagram and relational schema are prepared and have been checked against the team's initial MySQL DDL. Final approval depends on agreeing on business rules and verifying the team's final MySQL scripts.
 
 ## Related design files
 
