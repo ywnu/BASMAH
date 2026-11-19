@@ -2,7 +2,7 @@
 
 **Project:** BASMAH – Evidence & Source Tracking System  
 **Section owner:** Diyam — Database Design  
-**Document status:** Draft based on the current proposed schema. Final approval requires ER/EER diagram review and alignment with the team's MySQL implementation.
+**Document status:** Design diagrams prepared and schema structure checked against the team's initial MySQL DDL. ON DELETE / ON UPDATE rules, ActivityLogs trigger behavior, and business constraints remain pending team review.
 
 ## 1. Introduction and Database Design Overview
 
@@ -52,7 +52,7 @@ The design currently specifies ten one-to-many (1:N) relationships:
 9. Users → Versions (changes)
 10. Users → ActivityLogs (generates)
 
-The conceptual many-to-many (M:N) relationship between Claims and Sources is resolved through the associative entity Evidence. Each Evidence row refers to one Claim and one Source, and may include evidence-specific text and type. These cardinalities are **proposed** and must be checked against the final ER/EER diagram. See `RELATIONSHIPS.md` for the detailed descriptions and foreign-key targets.
+The conceptual many-to-many (M:N) relationship between Claims and Sources is resolved through the associative entity Evidence. Each Evidence row refers to one Claim and one Source, and may include evidence-specific text and type. These cardinalities are represented in the current ER diagram and relational schema. See `RELATIONSHIPS.md` for the detailed descriptions and foreign-key targets.
 
 ## 4. Normalization
 
@@ -89,15 +89,27 @@ MySQL uses a **client–server access model**. If the client and server run on t
 - Deletion policies should protect review, evidence, and change history.
 - Allowed status/decision/type values, timestamp defaults, and additional business constraints remain to be finalized.
 
-## 7. ER/EER Diagram — Pending
+## 7. ER Diagram and Relational Schema
 
-**Insert the final approved ER/EER diagram here.**
+The current ER diagram shows eight entities, their attributes and keys, and ten relationships. The relational schema shows the corresponding eight tables and ten foreign keys. The design has been checked against Jumanah's initial MySQL schema, including `Reviews.ReviewDate` as `DATETIME` and `Versions.PreviousText` as required.
 
-The diagram has **not** been finalized. Before submission, verify entity names, all attributes, relationship participation/cardinality, and agreement with the MySQL schema. Do not mark the diagram as complete until it has been reviewed.
+### ER Diagram
+
+![BASMAH ER Diagram](BASMAH-ER-Diagram.png)
+
+Editable source: [BASMAH-ER-Diagram.erdplus](BASMAH-ER-Diagram.erdplus)
+
+### Relational Schema
+
+![BASMAH Relational Schema](BASMAH-Relational%20Schema.png)
+
+Editable source: [BASMAH-Relational Schema.erdplus](BASMAH-Relational%20Schema.erdplus)
+
+**Note:** PNG assets must be uploaded at these relative paths for the previews above to render. Final business rules and trigger integration are pending team review.
 
 ## 8. Conclusion
 
-The current BASMAH design documents a proposed eight-entity relational model with explicit keys and relationships. Its separation of users, projects, claims, evidence, sources, reviews, and history provides a foundation for implementing a traceable evidence-management database. Final validation depends on completing the ER/EER diagram, agreeing on business rules, and verifying the team's MySQL scripts.
+The current BASMAH design documents a proposed eight-entity relational model with explicit keys and relationships. Its separation of users, projects, claims, evidence, sources, reviews, and history provides a foundation for implementing a traceable evidence-management database. The ER diagram and relational schema are prepared and have been checked against the team's initial MySQL DDL. Final approval depends on agreeing on business rules and verifying the team's final MySQL scripts.
 
 ## Related design files
 
