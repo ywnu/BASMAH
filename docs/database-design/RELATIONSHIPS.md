@@ -2,11 +2,11 @@
 
 **Project:** Evidence & Source Tracking System  
 **Owner:** Diyam — Database Design  
-**Status:** Proposed; requires ER Diagram and team review before approval.
+**Status:** Ten relationships aligned with the current ER diagram, relational schema, and Jumanah's initial MySQL DDL. ON DELETE / ON UPDATE and ActivityLogs behavior remain pending team review.
 
 ## Relationship inventory
 
-All ten proposed foreign-key relationships are **one-to-many (1:N)** from the referenced parent entity to the referencing child entity. The child-side FK is currently `NOT NULL`; a parent may have zero or more children. These describe logical cardinalities, not a claim that ERDPlus diagram connections have been verified.
+All ten current foreign-key relationships are **one-to-many (1:N)** from the referenced parent entity to the referencing child entity. The child-side FK is currently `NOT NULL`; a parent may have zero or more children. These describe the current ERDPlus design and initial MySQL foreign-key structure.
 
 | # | Parent (1) | Child (N) | Suggested ER label | Business meaning | FK implementation |
 |---|---|---|---|---|---|
@@ -27,11 +27,11 @@ All ten proposed foreign-key relationships are **one-to-many (1:N)** from the re
 
 ## Participation and implementation notes
 
-- With the currently proposed `NOT NULL` FKs, each child row must reference exactly one existing parent; a parent can have zero related child rows. This is a proposed constraint, not a verified diagram setting.
+- With the currently proposed `NOT NULL` FKs, each child row must reference exactly one existing parent; a parent can have zero related child rows. This matches the current schema's non-null foreign keys.
 - `Users` can play multiple roles (owner, creator, reviewer, editor, activity actor). These are distinct relationships and should be drawn separately.
 - Do not confuse `Users → Reviews` (`Performs`) with `Claims → Reviews` (`Receives`): each review needs both a reviewer and a reviewed claim.
 - Review `ActivityLogs.UserID` nullability for automated/system actions.
 - Decide on `ON DELETE` / `ON UPDATE` behavior with Jumanah and Hanan. Avoid automatic deletion of audit, evidence, reviews, and version history by default.
 - The approved ERD, data dictionary, and SQL DDL must use identical FK targets and cardinalities.
 
-**Status:** Documentation drafted; not implemented or tested.
+**Validation:** Jumanah reports creating the eight MySQL tables and testing foreign-key constraints. The final cascade policies and trigger behavior have not yet been approved.
