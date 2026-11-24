@@ -55,3 +55,27 @@ Since primary keys use AUTO_INCREMENT, changing IDs is not expected during norma
 ## 6. Approval
 
 This policy is a proposal and requires team approval before modifying the database schema.
+
+
+
+## 7. Test Results
+
+The proposed referential integrity policies were tested successfully.
+
+### ON DELETE RESTRICT
+- Attempted to delete a user referenced by a project.
+- MySQL rejected the deletion with Error Code 1451.
+- This confirms that RESTRICT prevents deleting referenced parent records.
+
+### ON UPDATE CASCADE
+- Updated a user's UserID from 2 to 20.
+- The related project's OwnerID was automatically updated from 2 to 20.
+- This confirms that CASCADE updates related foreign key values.
+
+### Cleanup
+- Deleted the temporary test project.
+- Deleted the temporary test user.
+- Verified that the Users and Projects tables were empty.
+
+### Conclusion
+The tested RESTRICT and CASCADE behaviors worked as expected.
