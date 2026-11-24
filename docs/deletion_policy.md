@@ -92,3 +92,37 @@ The proposed referential integrity policies and transaction operations were test
 
 ### Conclusion
 The tested RESTRICT, CASCADE, COMMIT, and ROLLBACK behaviors worked as expected.
+
+## 8. Integrity Constraint Test Results
+
+The following integrity constraint tests were executed successfully in MySQL Workbench.
+
+### 8.1 PRIMARY KEY
+- Attempted to insert a duplicate UserID (900).
+- MySQL rejected the insertion with Error Code 1062.
+- Result: PASSED.
+
+### 8.2 UNIQUE
+- Attempted to insert a duplicate Email address.
+- MySQL rejected the insertion with Error Code 1062.
+- Result: PASSED.
+
+### 8.3 NOT NULL
+- Attempted to insert a user with a NULL FullName.
+- MySQL rejected the insertion with Error Code 1048.
+- Result: PASSED.
+
+### 8.4 FOREIGN KEY
+- Attempted to insert a project with a non-existing OwnerID (99999).
+- MySQL rejected the insertion with Error Code 1452.
+- Result: PASSED.
+
+### 8.5 Cleanup
+- Checked temporary test users with UserID 900, 901, and 902.
+- Two test records were found.
+- Deleted the temporary users.
+- Verified that no matching test records remained.
+- Result: PASSED.
+
+### Conclusion
+All four tested integrity constraints behaved as expected. Temporary test records were cleaned up successfully.
