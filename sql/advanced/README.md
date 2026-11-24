@@ -70,7 +70,7 @@ Temporary test records were managed using transactions and rollback.
 - [x] Duplicate indexes avoided.
 - [x] Test results documented.
 - [x] Testing screenshots organized.
-- [ ] SQL files and documentation committed to the assigned branch.
-- [ ] Pull request opened for integration review.
+- [x] SQL files and documentation committed to the assigned branch.
+- [x] Pull request opened for integration review.
 
 **Important:** Do not edit `main` directly. Coordinate shared table definitions with Jumanah and Diyam.
