@@ -1,0 +1,169 @@
+# BASMAH – Deletion and Update Policy
+
+**Owner:** Hanan Almutairi  
+**Role:** Integrity & Transactions  
+**Branch:** `feature/integrity-transactions`  
+**Status:** Proposed – Pending Team Approval
+
+## 1. Purpose
+
+This document defines the proposed ON DELETE and ON UPDATE rules for the ten foreign key relationships in the BASMAH database.
+
+The objective is to maintain referential integrity and protect important historical records.
+
+## 2. Proposed Referential Actions
+
+| Foreign Key Relationship | ON DELETE | ON UPDATE |
+|---|---|---|
+| Projects → Users | RESTRICT | CASCADE |
+| Claims → Projects | RESTRICT | CASCADE |
+| Claims → Users | RESTRICT | CASCADE |
+| Evidence → Claims | RESTRICT | CASCADE |
+| Evidence → Sources | RESTRICT | CASCADE |
+| Reviews → Claims | RESTRICT | CASCADE |
+| Reviews → Users | RESTRICT | CASCADE |
+| Versions → Claims | RESTRICT | CASCADE |
+| Versions → Users | RESTRICT | CASCADE |
+| ActivityLogs → Users | RESTRICT | CASCADE |
+
+## 3. Deletion Policy
+
+RESTRICT is proposed for all ten foreign key relationships.
+
+Reasons:
+- Prevent accidental deletion of related records.
+- Preserve evidence and review history.
+- Protect claim versions.
+- Maintain activity log records.
+- Avoid losing important project information.
+
+## 4. Update Policy
+
+CASCADE is proposed for all ten relationships.
+
+If a referenced primary key is updated, the corresponding foreign key values will be updated automatically.
+
+Since primary keys use AUTO_INCREMENT, changing IDs is not expected during normal operation.
+
+## 5. Testing Considerations
+
+- Use disposable test records.
+- Verify that deleting referenced parent records is rejected.
+- Verify that historical records remain intact.
+- Never perform destructive tests on important project data.
+
+## 6. Approval
+
+This policy is a proposal and requires team approval before modifying the database schema.
+
+## 7. Referential Integrity and Transaction Test Results
+
+### 7.1 ON DELETE RESTRICT
+
+- Attempted to delete a user referenced by a project.
+- MySQL rejected the deletion with Error Code 1451.
+- Result: PASSED.
+
+### 7.2 ON UPDATE CASCADE
+
+- Updated a user's UserID.
+- The related project's OwnerID was automatically updated.
+- Verified that both IDs matched.
+- Executed ROLLBACK to undo temporary changes.
+- Result: PASSED.
+
+### 7.3 ROLLBACK Test
+
+- Inserted a temporary test user.
+- Verified that the record existed before rollback.
+- Executed ROLLBACK.
+- Verified that the record no longer existed.
+- Result: PASSED.
+
+### 7.4 COMMIT Test
+
+- Inserted a test user.
+- Executed COMMIT.
+- Verified that the record remained in the database.
+- Result: PASSED.
+
+### 7.5 Cleanup
+
+- Temporary test records were rolled back where applicable.
+- The COMMIT test record was retained for verification.
+
+### Conclusion
+
+The tested RESTRICT, CASCADE, COMMIT, and ROLLBACK behaviors worked as expected.
+
+## 8. Integrity Constraint Test Results
+
+The following integrity constraint tests were executed in MySQL Workbench.
+
+### 8.1 PRIMARY KEY
+
+- Attempted to insert a duplicate UserID (900).
+- MySQL rejected the insertion with Error Code 1062.
+- Result: PASSED.
+
+### 8.2 UNIQUE
+
+- Attempted to insert a duplicate Email address.
+- MySQL rejected the insertion with Error Code 1062.
+- Result: PASSED.
+
+### 8.3 NOT NULL
+
+- Attempted to insert a user with a NULL FullName.
+- MySQL rejected the insertion with Error Code 1048.
+- Result: PASSED.
+
+### 8.4 FOREIGN KEY
+
+- Attempted to insert a project with a non-existing OwnerID (99999).
+- MySQL rejected the insertion with Error Code 1452.
+- Result: PASSED.
+
+### 8.5 Cleanup
+
+- Checked temporary test users with UserID 900, 901, and 902.
+- Two test records were found.
+- Deleted the temporary users.
+- Verified that no matching test records remained.
+- Result: PASSED.
+
+### Conclusion
+
+All four tested integrity constraints behaved as expected. Temporary test records were cleaned up successfully.
+
+## 9. Transaction Isolation Test
+
+### 9.1 Test Setup
+
+- Opened two independent MySQL connections.
+- Session A: Connection ID 21.
+- Session B: Connection ID 23.
+- Both sessions reported autocommit = 1.
+- Started a transaction in Session A.
+- Inserted a temporary test user:
+  - UserID: 1000031
+  - FullName: Isolation Test
+  - Email: isolation_test@basmah.com
+
+### 9.2 Expected Result
+
+The uncommitted record should not be visible to Session B before Session A executes COMMIT.
+
+### 9.3 Actual Result
+
+- The record was visible in Session A.
+- The same record was also visible in Session B.
+- MySQL returned 1 row in Session B instead of the expected 0 rows.
+
+### 9.4 Conclusion
+
+The isolation test did not produce the expected result.
+
+The reason for this behavior has not yet been determined. Further investigation is required before confirming transaction isolation behavior.
+
+**Result: INCONCLUSIVE – Pending Further Investigation.**
