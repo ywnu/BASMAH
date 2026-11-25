@@ -2,7 +2,7 @@
 
 **Owner:** Hanan Almutairi  
 **Role:** Integrity & Transactions  
-**Branch:** feature/integrity-transactions  
+**Branch:** `feature/integrity-transactions`  
 **Status:** Proposed – Pending Team Approval
 
 ## 1. Purpose
@@ -56,68 +56,76 @@ Since primary keys use AUTO_INCREMENT, changing IDs is not expected during norma
 
 This policy is a proposal and requires team approval before modifying the database schema.
 
+## 7. Referential Integrity and Transaction Test Results
 
-## 7. Test Results
+### 7.1 ON DELETE RESTRICT
 
-The proposed referential integrity policies and transaction operations were tested.
-
-### ON DELETE RESTRICT
 - Attempted to delete a user referenced by a project.
 - MySQL rejected the deletion with Error Code 1451.
 - Result: PASSED.
 
-### ON UPDATE CASCADE
+### 7.2 ON UPDATE CASCADE
+
 - Updated a user's UserID.
 - The related project's OwnerID was automatically updated.
 - Verified that both IDs matched.
 - Executed ROLLBACK to undo temporary changes.
 - Result: PASSED.
 
-### ROLLBACK Test
+### 7.3 ROLLBACK Test
+
 - Inserted a temporary test user.
 - Verified that the record existed before rollback.
 - Executed ROLLBACK.
 - Verified that the record no longer existed.
 - Result: PASSED.
 
-### COMMIT Test
+### 7.4 COMMIT Test
+
 - Inserted a test user.
 - Executed COMMIT.
 - Verified that the record remained in the database.
 - Result: PASSED.
 
-### Cleanup
+### 7.5 Cleanup
+
 - Temporary test records were rolled back where applicable.
 - The COMMIT test record was retained for verification.
 
 ### Conclusion
+
 The tested RESTRICT, CASCADE, COMMIT, and ROLLBACK behaviors worked as expected.
 
 ## 8. Integrity Constraint Test Results
 
-The following integrity constraint tests were executed successfully in MySQL Workbench.
+The following integrity constraint tests were executed in MySQL Workbench.
 
 ### 8.1 PRIMARY KEY
+
 - Attempted to insert a duplicate UserID (900).
 - MySQL rejected the insertion with Error Code 1062.
 - Result: PASSED.
 
 ### 8.2 UNIQUE
+
 - Attempted to insert a duplicate Email address.
 - MySQL rejected the insertion with Error Code 1062.
 - Result: PASSED.
 
 ### 8.3 NOT NULL
+
 - Attempted to insert a user with a NULL FullName.
 - MySQL rejected the insertion with Error Code 1048.
 - Result: PASSED.
 
 ### 8.4 FOREIGN KEY
+
 - Attempted to insert a project with a non-existing OwnerID (99999).
 - MySQL rejected the insertion with Error Code 1452.
 - Result: PASSED.
 
 ### 8.5 Cleanup
+
 - Checked temporary test users with UserID 900, 901, and 902.
 - Two test records were found.
 - Deleted the temporary users.
@@ -125,4 +133,37 @@ The following integrity constraint tests were executed successfully in MySQL Wor
 - Result: PASSED.
 
 ### Conclusion
+
 All four tested integrity constraints behaved as expected. Temporary test records were cleaned up successfully.
+
+## 9. Transaction Isolation Test
+
+### 9.1 Test Setup
+
+- Opened two independent MySQL connections.
+- Session A: Connection ID 21.
+- Session B: Connection ID 23.
+- Both sessions reported autocommit = 1.
+- Started a transaction in Session A.
+- Inserted a temporary test user:
+  - UserID: 1000031
+  - FullName: Isolation Test
+  - Email: isolation_test@basmah.com
+
+### 9.2 Expected Result
+
+The uncommitted record should not be visible to Session B before Session A executes COMMIT.
+
+### 9.3 Actual Result
+
+- The record was visible in Session A.
+- The same record was also visible in Session B.
+- MySQL returned 1 row in Session B instead of the expected 0 rows.
+
+### 9.4 Conclusion
+
+The isolation test did not produce the expected result.
+
+The reason for this behavior has not yet been determined. Further investigation is required before confirming transaction isolation behavior.
+
+**Result: INCONCLUSIVE – Pending Further Investigation.**
