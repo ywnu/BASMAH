@@ -2,7 +2,7 @@
 
 **Owner:** Jumanah Alotaibi  
 **Branch:** `feature/schema-integration`  
-**Status:** Schema baseline implemented; final domain rules, login design, and integrated regression test pending team sign-off.
+**Status:** Added CHECK rules and optional nullable PasswordHash in schema branch, matched to Aseel's seed/backend configuration; awaiting final team review, local migration test, and integrated regression tests.
 
 ## Delivered schema
 
@@ -19,13 +19,13 @@ File: `sql/schema/01_create_tables.sql`
 | `Versions` | Previous claim text and change history |
 | `ActivityLogs` | User action audit entries |
 
-The baseline defines **8 tables, 8 primary keys, and 10 foreign keys**. Columns and types follow Diyam's `docs/database-design/DATA_DICTIONARY.md`.
+The schema defines **8 tables, 8 primary keys, and 10 foreign keys**. It now includes optional `Users.PasswordHash VARCHAR(255) NULL` and five domain `CHECK` constraints. The data dictionary was based on the previous four-column Users table and must be updated by the design owner to include PasswordHash.
 
 **Current foreign-key behavior:** `ON DELETE RESTRICT` and `ON UPDATE CASCADE` for all 10 relationships. This matches Hanan's proposal in `docs/deletion_policy.md` (branch `feature/integrity-transactions`), **not yet recorded as formally approved**.
 
 **ActivityLogs contract:** `LogID`, `UserID NOT NULL`, `Action`, `ActionDate`. Bayader's `sql/advanced/05_triggers.sql` inserts an audit entry when a `Claims` row is created, using `NEW.CreatedBy` as the logged user. No change to the ActivityLogs table is required for this trigger.
 
-## Provisional allowed values
+## Domain values enforced in the updated schema (awaiting final team review)
 
 These are the literal values used in Aseel's **compatible** sample data (`ASEEL_NEW/SQL/OPERATIONS/02_seed_data.sql`, branch `feature/sql-operations`).
 
@@ -37,19 +37,19 @@ These are the literal values used in Aseel's **compatible** sample data (`ASEEL_
 | `Evidence.EvidenceType` | `Study`, `Expert Statement`, `Reference Data`, `Social Media Post` |
 | `Sources.SourceType` | `Article`, `Report`, `Website`, `Book`, `Dataset` |
 
-**No CHECK constraints have been added yet.** The seed values do not prove the complete set of valid values for future application writes. Confirm with the team and backend owner before enforcing a restricted set.
+**Five CHECK constraints are now defined in `01_create_tables.sql` for these agreed-with-Aseel values.** These match Aseel's current seed and reported backend config, but still need final team review and testing against all intended application write values. CHECK membership can need revision for new features.
 
-## Authentication decision (pending)
+## Optional authentication column (no login implemented)
 
-`Users` currently contains only `UserID`, `FullName`, `Email`, and `Role`; `Email` is unique. It **does not** contain `PasswordHash`.
+`Users` now has `UserID`, `FullName`, `Email`, nullable `PasswordHash`, and `Role`; `Email` is unique. The extra column does **not** implement login, session tokens or access control.
 
-If email/password login is formally in scope:
+If real email/password login is added later:
 1. Agree whether the site uses pre-created demo accounts or self-registration.
-2. Have the backend produce and verify a secure password hash (Argon2id preferred; never store a plaintext password).
-3. Update the schema, migration strategy for existing users, Aseel's seed, and API documentation together.
-4. Test the new flow before marking the schema final.
+2. Have the backend generate and verify secure password hashes (Aseel proposed bcrypt; never store or return plaintext passwords).
+3. Update seed/demo accounts and API authentication/token/authorization together with backend/frontend.
+4. Verify actual authentication security separately before claiming login support.
 
-Do not add a `NOT NULL PasswordHash` column to existing populated tables without a migration/data plan.
+**Existing users in Aseel's seed have `PasswordHash = NULL`, so none can log in yet.** This is an intentionally non-breaking schema preparation, not authentication.
 
 ## Compatibility and tests
 
@@ -57,8 +57,8 @@ Do not add a `NOT NULL PasswordHash` column to existing populated tables without
 - [x] Compatible seed, data-quality checks and query evidence documented by Aseel on her branch.
 - [x] View, trigger and index implementation and local tests documented by Bayader on her branch.
 - [x] Referential integrity and transaction tests documented by Hanan on her branch.
-- [ ] Team approval of domain values and FK deletion/update policy.
-- [ ] Team decision about authentication and any required schema migration.
+- [ ] Final team review of five domain CHECK values and Hanan's FK deletion/update policy (Aseel confirmed compatibility).
+- [x] Nullable PasswordHash defined in new schema and run-once migration documented; [ ] test migration on BASMAH_TEST; [ ] decide whether to implement real login.
 - [ ] One reproducible clean-database integration run with **all** approved files.
 - [ ] Backend API ↔ MySQL and frontend ↔ API end-to-end checks.
 - [ ] Final PR review and integration into `main`.
@@ -87,13 +87,13 @@ Other members' local tests are **not** equivalent to a completed integrated run 
 
 **Post-test cleanup verification (user-confirmed):** After the transaction and FK tests, Jumanah rechecked the `BASMAH_TEST` row counts: Users=6, Projects=3, Sources=8, Claims=12, Evidence=16, Reviews=12, Versions=5, ActivityLogs=0. All disposable test record checks returned 0 (`Claims` IDs 9001/9301, `Users` IDs 9401/9403, `Projects` ID 9402). PASS (reported). No change was made to the production-like `BASMAH` database during this test flow.
 
-**Still needed before marking integration complete:** full run of all 19 Aseel query statements against final approved files; final CHECK/authentication decision; documented test evidence (screenshots/logs); actual FastAPI↔MySQL and frontend↔API checks; reviewed PR integration into `main`. The view/trigger/index tests used equivalent SQL on `BASMAH_TEST`, not a replay of an already-merged team repository.
+**Still needed before marking integration complete:** full run of all 19 Aseel query statements against final approved files; test the new CHECK constraints and optional PasswordHash migration; final authentication implementation decision; documented test evidence (screenshots/logs); actual FastAPI↔MySQL and frontend↔API checks; reviewed PR integration into `main`. The view/trigger/index tests used equivalent SQL on `BASMAH_TEST`, not a replay of an already-merged team repository.
 
 ## Reproducible setup
 
 Follow the root `RUN_ORDER.md`, which lists source branches, compatible paths, execution order, verification SQL and known blockers.
 
-**Important:** `CREATE TABLE IF NOT EXISTS` does not upgrade an existing table. Never drop a shared or populated database to test changes. Use a separate disposable test instance/schema or a reviewed `ALTER TABLE` migration.
+**Important:** `CREATE TABLE IF NOT EXISTS` does not upgrade an existing table. Never drop a shared or populated database to test changes. Use the run-once `sql/schema/02_migrate_existing_schema.sql` on a **disposable copy** first (for `BASMAH_TEST`, edit its `USE BASMAH;` to `USE BASMAH_TEST;`). Do not run it on a newly created updated schema. MySQL `ALTER TABLE` implicitly commits and cannot be undone with ordinary `ROLLBACK`.
 
 **Do not substitute** the older `sql/operations/02_seed_data.sql` in Aseel's branch; it targets `basmah_db` with different column names. Use the compatible `ASEEL_NEW/SQL/OPERATIONS/` files until the team consolidates the paths.
 
