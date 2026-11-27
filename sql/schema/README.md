@@ -85,6 +85,8 @@ Other members' local tests are **not** equivalent to a completed integrated run 
 | Hanan delete behavior | Deleting an associated user returned MySQL Error 1451; user remained after rollback | PASS (reported) |
 | Hanan update behavior | Temporary `UserID` 9401 → 9403 also changed `Projects.OwnerID` to 9403; rollback removed temporary user/project | PASS (reported) |
 
+**Post-test cleanup verification (user-confirmed):** After the transaction and FK tests, Jumanah rechecked the `BASMAH_TEST` row counts: Users=6, Projects=3, Sources=8, Claims=12, Evidence=16, Reviews=12, Versions=5, ActivityLogs=0. All disposable test record checks returned 0 (`Claims` IDs 9001/9301, `Users` IDs 9401/9403, `Projects` ID 9402). PASS (reported). No change was made to the production-like `BASMAH` database during this test flow.
+
 **Still needed before marking integration complete:** full run of all 19 Aseel query statements against final approved files; final CHECK/authentication decision; documented test evidence (screenshots/logs); actual FastAPI↔MySQL and frontend↔API checks; reviewed PR integration into `main`. The view/trigger/index tests used equivalent SQL on `BASMAH_TEST`, not a replay of an already-merged team repository.
 
 ## Reproducible setup
