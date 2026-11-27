@@ -1,9 +1,30 @@
--- BASMAH Database: initial schema (Week 12)
+-- BASMAH Database: schema baseline (Weeks 12-14)
 -- Owner: Jumanah Alotaibi | Schema & Integration
--- Based on Diyam's proposed Data Dictionary (feature/database-design).
--- IMPORTANT: ON DELETE / ON UPDATE policies are provisional, pending Hanan's review.
--- ActivityLogs contract and system-action behavior are pending Bayader's review.
--- Allowed status/decision/type values and CHECK constraints are not yet finalized.
+-- Matched to Diyam's Data Dictionary (feature/database-design).
+-- 8 tables, 8 primary keys, 10 foreign keys.
+--
+-- CURRENT IMPLEMENTATION:
+--   All 10 FKs use ON DELETE RESTRICT and ON UPDATE CASCADE.
+--   These match Hanan's documented proposal; formal team approval is pending.
+--   ActivityLogs stays (LogID, UserID, Action, ActionDate) with UserID NOT NULL.
+--   Bayader's AFTER INSERT trigger on Claims uses NEW.CreatedBy to set UserID.
+--
+-- PROVISIONAL DOMAIN VALUES observed in Aseel's current BASMAH seed data:
+--   Users.Role           : Admin, Researcher, Reviewer
+--   Claims.Status        : Pending, Verified, Disputed, Rejected
+--   Reviews.Decision     : Approve, Reject, NeedsMoreEvidence
+--   Evidence.EvidenceType: Study, Expert Statement, Reference Data, Social Media Post
+--   Sources.SourceType   : Article, Report, Website, Book, Dataset
+-- Do NOT add CHECK constraints until the team confirms that these are exhaustive.
+--
+-- LOGIN DECISION PENDING:
+--   Users.PasswordHash has NOT been added. Agree on demo accounts/registration,
+--   backend password hashing, and Aseel's seed changes before adding it.
+--
+-- INTEGRATION NOTE:
+--   CREATE TABLE IF NOT EXISTS will NOT modify existing table definitions.
+--   Use an agreed ALTER TABLE migration or a new disposable test database
+--   for future structural changes. Never drop an existing working database.
 
 CREATE DATABASE IF NOT EXISTS BASMAH;
 USE BASMAH;
