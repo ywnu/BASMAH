@@ -2,7 +2,7 @@
 
 **Owner:** Jumanah Alotaibi  
 **Branch:** `feature/schema-integration`  
-**Status:** Integration instructions prepared; **full clean-database regression test not yet executed**.
+**Status:** SQL smoke checks reported on BASMAH_TEST; full clean setup with newly added PasswordHash/CHECK constraints, end-to-end API testing and final team approval remain pending.
 
 ## Before running
 
@@ -10,13 +10,13 @@
 - Execute this plan on an **empty, disposable test database/server environment**. Do **not** run `DROP DATABASE` against the team's existing local data. The schema creates a database named `BASMAH`; choose a test instance that does not already have a valuable `BASMAH` database.
 - Pull/download the **specific listed files from their own branches**. They are not yet all present together in `feature/schema-integration` or `main`.
 - The seed uses fixed IDs: **run it once only** against an empty schema. `CREATE TABLE IF NOT EXISTS` does not migrate columns.
-- Pause if the team approves a change to columns, CHECK constraints, or `PasswordHash`: update the schema **and** affected seed/API code first.
+- The current schema now includes nullable `Users.PasswordHash` and five domain CHECK constraints matched to Aseel's seed/config; check every intended API write value before final review. This column does not implement login.
 
 ## Source files and execution sequence
 
 | Step | Owner / branch | File | Purpose |
 | --- | --- | --- | --- |
-| 1 | Jumanah — `feature/schema-integration` | `sql/schema/01_create_tables.sql` | Creates `BASMAH`, 8 tables, 10 FKs |
+| 1 | Jumanah — `feature/schema-integration` | `sql/schema/01_create_tables.sql` | Creates `BASMAH`, 8 tables, 10 FKs, five CHECK constraints and nullable `Users.PasswordHash` |
 | 2 | Aseel — `feature/sql-operations` | `ASEEL_NEW/SQL/OPERATIONS/02_seed_data.sql` | Inserts shared demo records; leave `ActivityLogs` empty |
 | 3 | Aseel — `feature/sql-operations` | `ASEEL_NEW/SQL/OPERATIONS/02b_data_quality_checks.sql` | 5 checks; each query returns **0 rows** |
 | 4 | Aseel — `feature/sql-operations` | `ASEEL_NEW/SQL/OPERATIONS/03_queries.sql` | 19 SQL demonstrations; Q18 rolls back; Q19 inserts/deletes a disposable claim |
@@ -29,6 +29,14 @@
 **Why Aseel's queries precede the trigger:** Q19 inserts a throwaway claim. If run after the trigger is installed, its audit record persists even when the claim is later deleted. Running Q19 before installing Bayader's trigger makes initial audit-log counts predictable. Subsequent new claims should generate audit entries.
 
 **Do not use the legacy files** under `sql/operations/` on Aseel's branch for this run. In particular, the old seed uses `basmah_db` and incompatible column names; use `ASEEL_NEW/SQL/OPERATIONS/` until the team consolidates the approved paths.
+
+## Migration for a database already created with the older schema
+
+Use `sql/schema/02_migrate_existing_schema.sql` **only** when upgrading an existing OLD-schema database. It is **not** part of the fresh-create sequence above. It adds nullable `Users.PasswordHash` and five CHECK constraints. The migration assumes all existing domain values are allowed and runs once (running it again would report duplicate column/constraint errors).
+
+For Jumanah's existing `BASMAH_TEST`, change the script's `USE BASMAH;` to `USE BASMAH_TEST;` and **review the target before executing**. A MySQL DDL `ALTER TABLE` implicitly commits and **cannot** be undone with `ROLLBACK`. Do not run this migration against any important original database without a backup and explicit approval.
+
+Verify `PasswordHash` is nullable, has a length of 255, and count five new CHECK constraints. Confirm the preexisting users still return `NULL` for PasswordHash; they will **not** have usable login credentials yet.
 
 ## Checkpoint A — schema and seed
 
@@ -98,10 +106,10 @@ A passed trigger smoke test confirms the specific audit insert and rollback beha
 
 ## Checkpoint C — integration handoff
 
-- Confirm the **actual** approved values for `Role`, `Status`, `Decision`, `EvidenceType`, and `SourceType`. Aseel's values are currently provisional; there are **no CHECK constraints** in the baseline DDL.
+- Five CHECK constraints are now in the updated schema using the Role/Status/Decision/EvidenceType/SourceType values confirmed by Aseel as matching her seed and backend config; remaining team review is required before final merge.
 - Confirm Hanan's proposed **ON DELETE RESTRICT / ON UPDATE CASCADE** for all 10 FKs with the team before declaring schema freeze.
 - Bayader's audit trigger requires `Claims.CreatedBy` to reference an existing user; the current `ActivityLogs.UserID NOT NULL` is compatible.
-- Decide whether email/password login is part of scope. `Users.PasswordHash` is **not** in the current schema. If added, coordinate seed migration and backend hashing.
+- `Users.PasswordHash VARCHAR(255) NULL` is added as an optional future authentication field. Email/password login, tokens, roles and access control are **not implemented**; coordinate with Aseel and Deem if that scope is approved.
 - Have Aseel upload her FastAPI/API documentation branch and coordinate endpoint field names; do not claim verified API↔MySQL integration until code is committed and retested.
 - Have Deem replace/mock-data frontend calls with the agreed backend API and document successful end-to-end flows.
 - Collect test screenshots/logs, resolve differences, review PRs, then integrate **approved** code into `main`.
