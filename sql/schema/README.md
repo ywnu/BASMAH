@@ -91,6 +91,8 @@ Other members' local tests are **not** equivalent to a completed integrated run 
 
 **CHECK enforcement negative tests (user-confirmed, 28 Nov 2026):** In `BASMAH_TEST`, an invalid insert to `Users.Role` and invalid updates to `Sources.SourceType`, `Claims.Status`, `Evidence.EvidenceType`, and `Reviews.Decision` all returned MySQL Error 3819. The rejected UserID 9501 count was 0; after the four invalid UPDATE attempts, `ROLLBACK` completed successfully. PASS (reported). Final post-test seed counts have not yet been rechecked.
 
+**Post-migration data integrity check (user-confirmed, 28 Nov 2026):** After adding the nullable `PasswordHash` column and all five `CHECK` constraints, Jumanah checked the existing `BASMAH_TEST` data: Users=6, Projects=3, Sources=8, Claims=12, Evidence=16, Reviews=12, Versions=5, ActivityLogs=0, UsersWithoutPasswordHash=6. These match the pre-migration seed totals, and the six existing demo users appropriately have `NULL` hashes (no login enabled). PASS (reported). This was a local manual test, not CI.
+
 **Still needed before marking integration complete:** full run of all 19 Aseel query statements against final approved files; test the new CHECK constraints and optional PasswordHash migration; final authentication implementation decision; documented test evidence (screenshots/logs); actual FastAPI↔MySQL and frontend↔API checks; reviewed PR integration into `main`. The view/trigger/index tests used equivalent SQL on `BASMAH_TEST`, not a replay of an already-merged team repository.
 
 ## Reproducible setup
