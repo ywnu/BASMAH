@@ -9,17 +9,19 @@
 --   ActivityLogs stays (LogID, UserID, Action, ActionDate) with UserID NOT NULL.
 --   Bayader's AFTER INSERT trigger on Claims uses NEW.CreatedBy to set UserID.
 --
--- PROVISIONAL DOMAIN VALUES observed in Aseel's current BASMAH seed data:
+-- DOMAIN CHECK VALUES: matched to Aseel's seed and backend configuration,
+--   pending final team review:
 --   Users.Role           : Admin, Researcher, Reviewer
 --   Claims.Status        : Pending, Verified, Disputed, Rejected
 --   Reviews.Decision     : Approve, Reject, NeedsMoreEvidence
 --   Evidence.EvidenceType: Study, Expert Statement, Reference Data, Social Media Post
 --   Sources.SourceType   : Article, Report, Website, Book, Dataset
--- Do NOT add CHECK constraints until the team confirms that these are exhaustive.
 --
--- LOGIN DECISION PENDING:
---   Users.PasswordHash has NOT been added. Agree on demo accounts/registration,
---   backend password hashing, and Aseel's seed changes before adding it.
+-- OPTIONAL FUTURE LOGIN SUPPORT:
+--   PasswordHash is nullable so Aseel's existing demo seed continues to work.
+--   It does NOT implement authentication. Only the backend may generate/verify
+--   password hashes; do not store or return plaintext passwords.
+--   API auth, token handling and authorization are out of scope for this schema edit.
 --
 -- INTEGRATION NOTE:
 --   CREATE TABLE IF NOT EXISTS will NOT modify existing table definitions.
@@ -33,7 +35,9 @@ CREATE TABLE IF NOT EXISTS Users (
     UserID INT AUTO_INCREMENT PRIMARY KEY,
     FullName VARCHAR(100) NOT NULL,
     Email VARCHAR(150) NOT NULL UNIQUE,
-    Role VARCHAR(30) NOT NULL
+    PasswordHash VARCHAR(255) NULL,
+    Role VARCHAR(30) NOT NULL,
+    CONSTRAINT ck_users_role CHECK (Role IN ('Admin', 'Researcher', 'Reviewer'))
 );
 
 CREATE TABLE IF NOT EXISTS Projects (
@@ -50,7 +54,8 @@ CREATE TABLE IF NOT EXISTS Sources (
     SourceID INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(200) NOT NULL,
     URL VARCHAR(500),
-    SourceType VARCHAR(50) NOT NULL
+    SourceType VARCHAR(50) NOT NULL,
+    CONSTRAINT ck_sources_source_type CHECK (SourceType IN ('Article', 'Report', 'Website', 'Book', 'Dataset'))
 );
 
 CREATE TABLE IF NOT EXISTS Claims (
@@ -59,6 +64,7 @@ CREATE TABLE IF NOT EXISTS Claims (
     CreatedBy INT NOT NULL,
     ClaimText TEXT NOT NULL,
     Status VARCHAR(30) NOT NULL,
+    CONSTRAINT ck_claims_status CHECK (Status IN ('Pending', 'Verified', 'Disputed', 'Rejected')),
     CONSTRAINT fk_claims_project
         FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -73,6 +79,7 @@ CREATE TABLE IF NOT EXISTS Evidence (
     SourceID INT NOT NULL,
     EvidenceText TEXT NOT NULL,
     EvidenceType VARCHAR(30) NOT NULL,
+    CONSTRAINT ck_evidence_evidence_type CHECK (EvidenceType IN ('Study', 'Expert Statement', 'Reference Data', 'Social Media Post')),
     CONSTRAINT fk_evidence_claim
         FOREIGN KEY (ClaimID) REFERENCES Claims(ClaimID)
         ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -87,6 +94,7 @@ CREATE TABLE IF NOT EXISTS Reviews (
     ReviewerID INT NOT NULL,
     Decision VARCHAR(30) NOT NULL,
     ReviewDate DATETIME NOT NULL,
+    CONSTRAINT ck_reviews_decision CHECK (Decision IN ('Approve', 'Reject', 'NeedsMoreEvidence')),
     CONSTRAINT fk_reviews_claim
         FOREIGN KEY (ClaimID) REFERENCES Claims(ClaimID)
         ON DELETE RESTRICT ON UPDATE CASCADE,
