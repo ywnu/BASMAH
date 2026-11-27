@@ -65,6 +65,28 @@ Do not add a `NOT NULL PasswordHash` column to existing populated tables without
 
 Other members' local tests are **not** equivalent to a completed integrated run on Jumanah's branch.
 
+## Integration smoke-test results (Jumanah's local MySQL)
+
+**Environment:** MySQL 8.0.41, MySQL Workbench; isolated database `BASMAH_TEST` (the original `BASMAH` was not used for these test writes).
+
+**Evidence level:** Jumanah executed these tests locally and reported the expected outputs during the team-assisted integration walkthrough on 27–28 Nov 2026. This is a record of **user-confirmed local results**; it is not an independently executed CI run or a final reviewed test artifact.
+
+| Scope | Observed outcome reported by Jumanah | Status |
+| --- | --- | --- |
+| Schema | 8 base tables, 10 FKs | PASS (reported) |
+| Seed | Users 6; Projects 3; Sources 8; Claims 12; Evidence 16; Reviews 12; Versions 5; ActivityLogs 0 | PASS (reported) |
+| Data-quality checks | DQ1–DQ5 each returned zero rows | PASS (reported) |
+| Bayader view | `vw_ClaimEvidenceSources` returned 16 rows | PASS (reported) |
+| Bayader trigger | `AFTER INSERT` on Claims logged `Created claim ID: 9301` with `UserID=3`; subsequent `ROLLBACK` left 0 test claims and 0 test logs | PASS (reported) |
+| Bayader index | `idx_claims_status` exists on `Claims.Status`, `Non_unique=1` | PASS (reported) |
+| Aseel queries | SELECT counts, status GROUP BY, evidence counts, several JOIN/subquery/version queries matched expected output | PASS (tested subset) |
+| Aseel UPDATE/DELETE | Status `Verified` then `Pending` after rollback; temporary claim insert/delete and audit cleanup all matched expected counts | PASS (reported) |
+| Hanan FK rule definitions | 10 `RESTRICT` delete rules and 10 `CASCADE` update rules | PASS (reported) |
+| Hanan delete behavior | Deleting an associated user returned MySQL Error 1451; user remained after rollback | PASS (reported) |
+| Hanan update behavior | Temporary `UserID` 9401 → 9403 also changed `Projects.OwnerID` to 9403; rollback removed temporary user/project | PASS (reported) |
+
+**Still needed before marking integration complete:** full run of all 19 Aseel query statements against final approved files; final CHECK/authentication decision; documented test evidence (screenshots/logs); actual FastAPI↔MySQL and frontend↔API checks; reviewed PR integration into `main`. The view/trigger/index tests used equivalent SQL on `BASMAH_TEST`, not a replay of an already-merged team repository.
+
 ## Reproducible setup
 
 Follow the root `RUN_ORDER.md`, which lists source branches, compatible paths, execution order, verification SQL and known blockers.
