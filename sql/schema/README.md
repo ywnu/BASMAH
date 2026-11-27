@@ -87,6 +87,8 @@ Other members' local tests are **not** equivalent to a completed integrated run 
 
 **Post-test cleanup verification (user-confirmed):** After the transaction and FK tests, Jumanah rechecked the `BASMAH_TEST` row counts: Users=6, Projects=3, Sources=8, Claims=12, Evidence=16, Reviews=12, Versions=5, ActivityLogs=0. All disposable test record checks returned 0 (`Claims` IDs 9001/9301, `Users` IDs 9401/9403, `Projects` ID 9402). PASS (reported). No change was made to the production-like `BASMAH` database during this test flow.
 
+**Schema migration smoke test (user-confirmed, 28 Nov 2026):** Jumanah ran `sql/schema/02_migrate_existing_schema.sql` with `USE BASMAH_TEST;` on the existing test DB, confirmed the `PasswordHash` column is `varchar(255)` and nullable, and confirmed all five named `CHECK` constraints appeared. PASS (reported). **Not yet verified:** rejection of invalid values and post-migration seed row counts. This was not run on the original BASMAH database.
+
 **Still needed before marking integration complete:** full run of all 19 Aseel query statements against final approved files; test the new CHECK constraints and optional PasswordHash migration; final authentication implementation decision; documented test evidence (screenshots/logs); actual FastAPI↔MySQL and frontend↔API checks; reviewed PR integration into `main`. The view/trigger/index tests used equivalent SQL on `BASMAH_TEST`, not a replay of an already-merged team repository.
 
 ## Reproducible setup
